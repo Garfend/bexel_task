@@ -14,8 +14,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final Future<List<TaskModel>> _task;
   late final TaskRepository _repository;
+  TaskFilters _filters = const TaskFilters();
+  List<TaskModel> _allTasks = [];
+  List<TaskModel> _visibleTasks = [];
+  List<String> _types = [];
+  bool _loading = true;
+  String? _error;
 
   @override
   void initState() {
