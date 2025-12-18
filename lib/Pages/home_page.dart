@@ -31,6 +31,36 @@ class _HomePageState extends State<HomePage> {
     );
     _loadData();
   }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final tasks = await _repository.loadTasks();
+      final types = await _repository.loadTaskTypes();
+      if (tasks.isEmpty) {
+        final importedTasks = await _repository.loadTasks();
+        final importedTypes = await _repository.loadTaskTypes();
+        setState(() {
+          _allTasks = importedTasks;
+          _types = importedTypes;
+        });
+      } else {
+        setState(() {
+          _allTasks = tasks;
+          _types = types;
+        });
+      }
+      _applyFilters();
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
   }
 
   @override
