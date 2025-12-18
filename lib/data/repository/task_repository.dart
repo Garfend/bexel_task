@@ -1,13 +1,19 @@
 import 'package:bexel_task/data/datasource/task_datasource.dart';
+import 'package:bexel_task/data/local/task_local_db.dart';
 import 'package:bexel_task/data/model/task_model.dart';
 
 abstract class TaskRepository {
   Future<List<TaskModel>> loadTasks();
   Future<List<String>> loadTaskTypes();
+  Future<void> importFromAssets();
+  Future<void> addTask(TaskModel task);
+  Future<void> updateTask(TaskModel task);
+  Future<void> deleteTask(int id);
 }
 
 class TaskRepositoryImp extends TaskRepository {
   final TaskDatasource taskDatasource;
+  final TaskLocalDb localDb;
 
   TaskRepositoryImp(this.taskDatasource, this.localDb);
 
