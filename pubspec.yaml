@@ -25,7 +25,6 @@ flutter:
 
   assets:
      - assets/data/data.json
-     - assets/data
 
   # fonts:
   #   - family: Schyler
