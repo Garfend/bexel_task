@@ -36,7 +36,7 @@ class TaskRepositoryImp extends TaskRepository {
   @override
   Future<void> importFromAssets() async {
     final tasks = await taskDatasource.loadFromFiles();
-    await localDb.upsertTasks(tasks, clearBeforeInsert: true);
+    await localDb.importTask(tasks, clearBeforeInsert: true);
   }
 
   @override
