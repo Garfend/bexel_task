@@ -61,6 +61,64 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+
+  Future<void> _openFilters() async {
+    final result = await showFilterBottomSheet(
+      context: context,
+      initial: _filters,
+      availableTypes: _types,
+    );
+
+    if (result != null) {
+      setState(() => _filters = result);
+      _applyFilters();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _applyFilters() {
+    Iterable<TaskModel> results = _allTasks;
+    final lowerQuery = _filters.query.trim().toLowerCase();
+    if (lowerQuery.isNotEmpty) {
+      results = results.where(
+        (task) =>
+            task.title.toLowerCase().contains(lowerQuery) ||
+            task.description.toLowerCase().contains(lowerQuery) ||
+            task.type.toLowerCase().contains(lowerQuery),
+      );
+    }
+    if (_filters.status != null && _filters.status!.isNotEmpty) {
+      results = results.where(
+        (task) => task.status.toLowerCase() == _filters.status!.toLowerCase(),
+      );
+    }
+    if (_filters.type != null && _filters.type!.isNotEmpty) {
+      results = results.where(
+        (task) => task.type.toLowerCase() == _filters.type!.toLowerCase(),
+      );
+    }
+    if (_filters.dateFrom != null) {
+      results = results.where(
+        (task) => !task.createdAt.isBefore(_filters.dateFrom!),
+      );
+    }
+    if (_filters.dateTo != null) {
+      results = results.where(
+        (task) => !task.createdAt.isAfter(_filters.dateTo!),
+      );
+    }
+
+    final sorted = results.toList()
+      ..sortByCreated(descending: _filters.sortDescending);
+
+    setState(() {
+      _visibleTasks = sorted;
+      _loading = false;
+    });
   }
 
   @override
