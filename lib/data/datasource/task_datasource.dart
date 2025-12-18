@@ -13,7 +13,7 @@ class TaskDataSourceImp extends TaskDatasource {
     final rawData = await rootBundle.loadString('assets/data/data.json');
     final List<dynamic> jsonList = json.decode(rawData) as List<dynamic>;
     return jsonList
-        .map((_) => TaskModel.fromMap(_ as Map<String, dynamic>))
+        .map((e) => TaskModel.fromMap(e as Map<String, dynamic>))
         .toList();
   }
 }
