@@ -19,7 +19,7 @@ class TaskRepositoryImp extends TaskRepository {
 
   @override
   Future<List<TaskModel>> loadTasks() async {
-    return await localDb.fetchAll();
+    return await taskDatasource.loadTasks();
   }
 
   @override
@@ -35,7 +35,7 @@ class TaskRepositoryImp extends TaskRepository {
 
   @override
   Future<void> importFromAssets() async {
-    final tasks = await taskDatasource.loadTasks();
+    final tasks = await taskDatasource.loadFromFiles();
     await localDb.upsertTasks(tasks, clearBeforeInsert: true);
   }
 
