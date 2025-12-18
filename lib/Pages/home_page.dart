@@ -25,8 +25,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _repository = TaskRepositoryImp(TaskDataSourceImp());
-    _task = _repository.loadTask();
+    _repository = TaskRepositoryImp(
+      TaskDataSourceImp(TaskLocalDb.instance),
+      TaskLocalDb.instance,
+    );
+    _loadData();
+  }
   }
 
   @override
