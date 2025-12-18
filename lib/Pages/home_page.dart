@@ -1,11 +1,12 @@
 import 'package:bexel_task/data/datasource/task_datasource.dart';
-import 'package:bexel_task/data/model/task_model.dart';
 import 'package:bexel_task/data/local/task_local_db.dart';
+import 'package:bexel_task/data/model/task_model.dart';
 import 'package:bexel_task/data/repository/task_repository.dart';
+import 'package:bexel_task/utils/extensions/task_sort_extension.dart';
 import 'package:bexel_task/widgets/filter_bottomsheet.dart';
+import 'package:bexel_task/widgets/task_form_dialog.dart';
 import 'package:bexel_task/widgets/task_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:bexel_task/utils/extensions/task_sort_extension.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,14 +42,15 @@ class _HomePageState extends State<HomePage> {
       _error = null;
     });
     try {
-      final tasks = await _repository.loadTasks();
-      final types = await _repository.loadTaskTypes();
+      var tasks = await _repository.loadTasks();
+      var types = await _repository.loadTaskTypes();
       if (tasks.isEmpty) {
-        final importedTasks = await _repository.loadTasks();
-        final importedTypes = await _repository.loadTaskTypes();
+        await _repository.importFromAssets();
+        tasks = await _repository.loadTasks();
+        types = await _repository.loadTaskTypes();
         setState(() {
-          _allTasks = importedTasks;
-          _types = importedTypes;
+          _allTasks = tasks;
+          _types = types;
         });
       } else {
         setState(() {
@@ -76,6 +78,34 @@ class _HomePageState extends State<HomePage> {
       setState(() => _filters = result);
       _applyFilters();
     }
+  }
+
+  Future<void> _deleteTask(TaskModel task) async {
+    await _repository.deleteTask(task.id);
+    await _loadData();
+  }
+
+  Future<void> _openTaskForm({TaskModel? task}) async {
+    final result = await showTaskFormDialog(
+      context: context,
+      initial: task,
+      nextId: _nextId(),
+    );
+
+    if (result != null) {
+      if (task == null) {
+        await _repository.addTask(result);
+      } else {
+        await _repository.updateTask(result);
+      }
+      await _loadData();
+    }
+  }
+
+  int _nextId() {
+    if (_allTasks.isEmpty) return 1;
+    final maxId = _allTasks.map((e) => e.id).reduce((a, b) => a > b ? a : b);
+    return maxId + 1;
   }
 
   @override
@@ -141,7 +171,7 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Import JSON file',
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () => _openTaskForm(),
             icon: const Icon(Icons.add),
             tooltip: 'add item',
           ),
@@ -162,8 +192,8 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   return TaskWidget(
                     task: _visibleTasks[index],
-                    editItem: () {},
-                    deleteItem: () {},
+                    editItem: () => _openTaskForm(task: _visibleTasks[index]),
+                    deleteItem: () => _deleteTask(_visibleTasks[index]),
                   );
                 },
               ),
