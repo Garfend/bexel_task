@@ -160,7 +160,11 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(16),
                 itemCount: _visibleTasks.length,
                 itemBuilder: (context, index) {
-                  return TaskWidget(task: _visibleTasks[index]);
+                  return TaskWidget(
+                    task: _visibleTasks[index],
+                    editItem: () {},
+                    deleteItem: () {},
+                  );
                 },
               ),
             ),
