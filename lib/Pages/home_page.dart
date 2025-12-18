@@ -124,6 +124,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openFilters,
+        child: const Icon(Icons.filter_alt),
+      ),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('task'),
       ),
