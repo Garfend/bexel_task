@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "title": "Task 1 - Buy groceries",
+    "description": "Milk, Bread, Cheese, Fruits",
+    "type": "Personal",
+    "status": "Incomplete",
+    "createdAt": "2025-11-01T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "title": "Task 2 - Finish project report",
+    "description": "Complete the final draft and send to manager",
+    "type": "Work",
+    "status": "Incomplete",
+    "createdAt": "2025-10-28T14:30:00Z"
+  },
+  {
+    "id": 3,
+    "title": "Task 3 - Morning workout",
+    "description": "30 minutes running and stretching",
+    "type": "Personal",
+    "status": "Complete",
+    "createdAt": "2025-11-05T06:15:00Z"
+  },
+  {
+    "id": 4,
+    "title": "Task 4 - Team meeting",
+    "description": "Discuss milestones and deadlines",
+    "type": "Work",
+    "status": "Complete",
+    "createdAt": "2025-11-03T09:00:00Z"
+  },
+  {
+    "id": 5,
+    "title": "Task 5 - Call plumber",
+    "description": "Fix leaking faucet in kitchen",
+    "type": "Personal",
+    "status": "Incomplete",
+    "createdAt": "2025-11-04T11:00:00Z"
+  }
+]
