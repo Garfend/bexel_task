@@ -1,5 +1,5 @@
 import 'package:bexel_task/data/model/task_model.dart';
-import 'package:bexel_task/widgets/extensions/date_extensions.dart';
+import 'package:bexel_task/utils/extensions/date_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

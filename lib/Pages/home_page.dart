@@ -2,8 +2,7 @@ import 'package:bexel_task/data/datasource/task_datasource.dart';
 import 'package:bexel_task/data/repository/task_repository.dart';
 import 'package:bexel_task/widgets/task_widget.dart';
 import 'package:flutter/material.dart';
-
-import '../data/model/task_model.dart';
+import 'package:bexel_task/utils/extensions/task_sort_extension.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
