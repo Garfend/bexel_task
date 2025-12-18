@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
-class ConsultationResponse extends Equatable{
+class TaskModel extends Equatable{
   final int id;
   final String title;
   final String description;
@@ -10,7 +10,7 @@ class ConsultationResponse extends Equatable{
   final String status;
   final DateTime createdAt;
 
-  const ConsultationResponse({
+  TaskModel({
     required this.id,
     required this.title,
     required this.description,
@@ -19,7 +19,7 @@ class ConsultationResponse extends Equatable{
     required this.createdAt,
   });
 
-  ConsultationResponse copyWith({
+  TaskModel copyWith({
     int? id,
     String? title,
     String? description,
@@ -27,7 +27,7 @@ class ConsultationResponse extends Equatable{
     String? status,
     DateTime? createdAt,
   }) =>
-      ConsultationResponse(
+      TaskModel(
         id: id ?? this.id,
         title: title ?? this.title,
         description: description ?? this.description,
@@ -36,11 +36,11 @@ class ConsultationResponse extends Equatable{
         createdAt: createdAt ?? this.createdAt,
       );
 
-  factory ConsultationResponse.fromJson(String str) => ConsultationResponse.fromMap(json.decode(str));
+  factory TaskModel.fromJson(String str) => TaskModel.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory ConsultationResponse.fromMap(Map<String, dynamic> json) => ConsultationResponse(
+  factory TaskModel.fromMap(Map<String, dynamic> json) => TaskModel(
     id: json["id"],
     title: json["title"],
     description: json["description"],
