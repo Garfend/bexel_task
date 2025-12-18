@@ -130,33 +130,37 @@ class _HomePageState extends State<HomePage> {
       ),
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('task'),
+        backgroundColor: const Color(0xE7E7E7FF),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.download),
+            tooltip: 'Import JSON file',
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.add),
+            tooltip: 'add item',
+          ),
+        ],
+        title: const Text('Tasks'),
       ),
-      body: FutureBuilder(
-          future: _task,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('error occured: ${snapshot.error}'),
-              );
-            }
-            final tasks = snapshot.data;
-            if (tasks!.isEmpty) {
-              return Center(
-                child: Text('no data found'),
-              );
-            }
-            return ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                return TaskWidget(task: tasks[index]);
-              },
-            );
-          }),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+          ? Center(child: Text('Error: $_error'))
+          : _visibleTasks.isEmpty
+          ? const Center(child: Text('No tasks found'))
+          : RefreshIndicator(
+              onRefresh: _loadData,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _visibleTasks.length,
+                itemBuilder: (context, index) {
+                  return TaskWidget(task: _visibleTasks[index]);
+                },
+              ),
+            ),
     );
   }
 }
