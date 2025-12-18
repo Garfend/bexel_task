@@ -1,56 +1,126 @@
 import 'package:bexel_task/data/datasource/task_datasource.dart';
-import 'package:bexel_task/data/local/task_local_db.dart';
+import 'package:bexel_task/data/local/app_database.dart';
 import 'package:bexel_task/data/model/task_model.dart';
+import 'package:drift/drift.dart';
 
 abstract class TaskRepository {
-  Future<List<TaskModel>> loadTasks();
+  Stream<List<TaskModel>> watchTasks({
+    String? keyword,
+    String? status,
+    String? type,
+    DateTime? from,
+    DateTime? to,
+    bool desc = true,
+  });
   Future<List<String>> loadTaskTypes();
   Future<void> importFromAssets();
   Future<void> addTask(TaskModel task);
   Future<void> updateTask(TaskModel task);
   Future<void> deleteTask(int id);
+  Future<int> nextId();
+  Future<void> warmIndexes();
 }
 
 class TaskRepositoryImp extends TaskRepository {
   final TaskDatasource taskDatasource;
-  final TaskLocalDb localDb;
+  final TaskDao taskDao;
 
-  TaskRepositoryImp(this.taskDatasource, this.localDb);
+  TaskRepositoryImp(this.taskDatasource, this.taskDao);
 
   @override
-  Future<List<TaskModel>> loadTasks() async {
-    return await taskDatasource.loadTasks();
+  Stream<List<TaskModel>> watchTasks({
+    String? keyword,
+    String? status,
+    String? type,
+    DateTime? from,
+    DateTime? to,
+    bool desc = true,
+  }) {
+    return taskDao
+        .watchTasks(
+          keyword: keyword,
+          status: status,
+          type: type,
+          from: from,
+          to: to,
+          desc: desc,
+        )
+        .map((rows) => rows
+            .map(
+              (row) => TaskModel(
+                id: row.id,
+                title: row.title,
+                description: row.description,
+                type: row.type,
+                status: row.status,
+                createdAt: row.createdAt,
+              ),
+            )
+            .toList());
   }
 
   @override
   Future<List<String>> loadTaskTypes() async {
-    final tasks = await loadTasks();
-    final types = tasks
-        .map((task) => task.type)
-        .toSet()
-        .toList()
-      ..sort();
-    return types;
+    return taskDao.loadTypes();
   }
 
   @override
   Future<void> importFromAssets() async {
     final tasks = await taskDatasource.loadFromFiles();
-    await localDb.importTask(tasks, clearBeforeInsert: true);
+    await taskDao.upsertAll(
+      tasks
+          .map(
+            (t) => Task(
+              id: t.id,
+              title: t.title,
+              description: t.description,
+              type: t.type,
+              status: t.status,
+              createdAt: t.createdAt,
+            ),
+          )
+          .toList(),
+      clearBeforeInsert: true,
+    );
   }
 
   @override
   Future<void> addTask(TaskModel task) async {
-    await localDb.insertTask(task);
+    await taskDao.insertTask(TasksCompanion(
+      id: Value(task.id),
+      title: Value(task.title),
+      description: Value(task.description),
+      type: Value(task.type),
+      status: Value(task.status),
+      createdAt: Value(task.createdAt),
+    ));
   }
 
   @override
   Future<void> updateTask(TaskModel task) async {
-    await localDb.updateTask(task);
+    await taskDao.updateTaskRow(Task(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      type: task.type,
+      status: task.status,
+      createdAt: task.createdAt,
+    ));
   }
 
   @override
   Future<void> deleteTask(int id) async {
-    await localDb.deleteTask(id);
+    await taskDao.deleteTaskById(id);
+  }
+
+  @override
+  Future<int> nextId() async {
+    final max = await taskDao.maxId();
+    return max + 1;
+  }
+
+  @override
+  Future<void> warmIndexes() {
+    return taskDao.ensureFtsIndexed();
   }
 }
