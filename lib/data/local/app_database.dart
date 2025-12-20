@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bexel_task/data/model/task_query_params.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as path;
@@ -56,18 +57,17 @@ LazyDatabase _openConnection() {
 class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
   TaskDao(AppDatabase db) : super(db);
 
-  Stream<List<Task>> watchTasks({
-    String? keyword,
-    String? status,
-    String? type,
-    DateTime? from,
-    DateTime? to,
-    bool desc = true,
-  }) {
+  Stream<List<Task>> watchTasks(TaskQueryParams params) {
+    final keyword = params.keyword;
+    final status = params.status;
+    final type = params.type;
+    final from = params.from;
+    final to = params.to;
+    final desc = params.sortDescending;
     final where = <String>[];
     final variables = <Variable>[];
 
-    if (keyword != null && keyword.trim().isNotEmpty) {
+    if (keyword.trim().isNotEmpty) {
       final normalized = keyword
           .trim()
           .split(RegExp(r'\s+'))
@@ -207,4 +207,3 @@ CREATE TRIGGER IF NOT EXISTS tasks_au AFTER UPDATE ON tasks BEGIN
   VALUES(new.id, new.id, new.title, new.description, new.type);
 END;
 ''';
-

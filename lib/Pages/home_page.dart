@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bexel_task/data/local/app_database.dart';
 import 'package:bexel_task/data/model/task_filters.dart';
 import 'package:bexel_task/data/model/task_model.dart';
+import 'package:bexel_task/data/model/task_query_params.dart';
 import 'package:bexel_task/data/repository/task_repository.dart';
 import 'package:bexel_task/data/task_conflict_exception.dart';
 import 'package:bexel_task/widgets/task_form_dialog.dart';
@@ -137,12 +138,14 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: StreamBuilder<List<TaskModel>>(
               stream: widget.repository.watchTasks(
-                keyword: _filters.query,
-                status: _filters.status,
-                type: _filters.type,
-                from: _filters.dateFrom,
-                to: _filters.dateTo,
-                desc: _filters.sortDescending,
+                TaskQueryParams(
+                  keyword: _filters.query,
+                  status: _filters.status,
+                  type: _filters.type,
+                  from: _filters.dateFrom,
+                  to: _filters.dateTo,
+                  sortDescending: _filters.sortDescending,
+                ),
               ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {

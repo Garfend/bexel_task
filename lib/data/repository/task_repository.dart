@@ -1,18 +1,12 @@
 import 'package:bexel_task/data/datasource/task_datasource.dart';
 import 'package:bexel_task/data/local/app_database.dart';
 import 'package:bexel_task/data/model/task_model.dart';
+import 'package:bexel_task/data/model/task_query_params.dart';
 import 'package:bexel_task/data/task_conflict_exception.dart';
 import 'package:drift/drift.dart';
 
 abstract class TaskRepository {
-  Stream<List<TaskModel>> watchTasks({
-    String? keyword,
-    String? status,
-    String? type,
-    DateTime? from,
-    DateTime? to,
-    bool desc = true,
-  });
+  Stream<List<TaskModel>> watchTasks(TaskQueryParams params);
   Future<List<String>> loadTaskTypes();
   Future<void> importFromAssets();
   Future<void> addTask(TaskModel task);
@@ -27,23 +21,9 @@ class TaskRepositoryImp extends TaskRepository {
   TaskRepositoryImp(this.taskDatasource, this.taskDao);
 
   @override
-  Stream<List<TaskModel>> watchTasks({
-    String? keyword,
-    String? status,
-    String? type,
-    DateTime? from,
-    DateTime? to,
-    bool desc = true,
-  }) {
+  Stream<List<TaskModel>> watchTasks(TaskQueryParams params) {
     return taskDao
-        .watchTasks(
-          keyword: keyword,
-          status: status,
-          type: type,
-          from: from,
-          to: to,
-          desc: desc,
-        )
+        .watchTasks(params)
         .map((rows) => rows
             .map(
               (row) => TaskModel(
