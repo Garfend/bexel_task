@@ -15,11 +15,7 @@ class HomePage extends StatefulWidget {
   final AppDatabase db;
   final TaskRepository repository;
 
-  const HomePage({
-    super.key,
-    required this.db,
-    required this.repository,
-  });
+  const HomePage({super.key, required this.db, required this.repository});
 
   @override
   State<HomePage> createState() {
@@ -52,10 +48,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openTaskForm({TaskModel? task}) async {
-    final result = await showTaskFormDialog(
-      context: context,
-      initial: task,
-    );
+    final result = await showTaskFormDialog(context: context, initial: task);
 
     if (result != null) {
       try {
@@ -67,9 +60,9 @@ class _HomePageState extends State<HomePage> {
         await _loadTypes();
       } on TaskConflictException catch (err) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(err.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(err.message)));
         if (err.type == TaskConflictType.revisionMismatch &&
             err.latest != null) {
           await _openTaskForm(task: err.latest);
@@ -166,16 +159,16 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }
-                return  ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: tasks.length,
-                    itemBuilder: (context, index) {
-                      return TaskWidget(
-                        task: tasks[index],
-                        editItem: () => _openTaskForm(task: tasks[index]),
-                        deleteItem: () => _deleteTask(tasks[index]),
-                      );
-                    },
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    return TaskWidget(
+                      task: tasks[index],
+                      editItem: () => _openTaskForm(task: tasks[index]),
+                      deleteItem: () => _deleteTask(tasks[index]),
+                    );
+                  },
                 );
               },
             ),
