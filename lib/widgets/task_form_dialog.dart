@@ -63,8 +63,17 @@ Future<TaskModel?> showTaskFormDialog({
                         lastDate: DateTime(2100),
                       );
                       if (picked != null) {
+                        // Preserve the time component from the original createdAt
+                        final newDateTime = DateTime(
+                          picked.year,
+                          picked.month,
+                          picked.day,
+                          createdAt.hour,
+                          createdAt.minute,
+                          createdAt.second,
+                        );
                         setModalState(() {
-                          createdAt = picked;
+                          createdAt = newDateTime;
                         });
                       }
                     },
