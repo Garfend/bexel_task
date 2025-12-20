@@ -4,6 +4,7 @@ import 'package:bexel_task/data/local/app_database.dart';
 import 'package:bexel_task/data/model/task_filters.dart';
 import 'package:bexel_task/data/model/task_model.dart';
 import 'package:bexel_task/data/repository/task_repository.dart';
+import 'package:bexel_task/data/task_conflict_exception.dart';
 import 'package:bexel_task/widgets/task_form_dialog.dart';
 import 'package:bexel_task/widgets/task_search_filter_bar.dart';
 import 'package:bexel_task/widgets/task_widget.dart';
@@ -56,12 +57,23 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (result != null) {
-      if (task == null) {
-        await widget.repository.addTask(result);
-      } else {
-        await widget.repository.updateTask(result);
+      try {
+        if (task == null) {
+          await widget.repository.addTask(result);
+        } else {
+          await widget.repository.updateTask(result);
+        }
+        await _loadTypes();
+      } on TaskConflictException catch (err) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(err.message)),
+        );
+        if (err.type == TaskConflictType.revisionMismatch &&
+            err.latest != null) {
+          await _openTaskForm(task: err.latest);
+        }
       }
-      await _loadTypes();
     }
   }
 
