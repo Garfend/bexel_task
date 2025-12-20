@@ -97,6 +97,7 @@ Future<TaskModel?> showTaskFormDialog({
                     type: typeController.text,
                     status: status,
                     createdAt: createdAt,
+                    revision: initial?.revision ?? 0,
                   );
                   Navigator.of(context).pop(newTask);
                 },
