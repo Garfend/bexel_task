@@ -9,6 +9,7 @@ class TaskModel extends Equatable{
   final String type;
   final String status;
   final DateTime createdAt;
+  final int revision;
 
   TaskModel({
     this.id,
@@ -17,6 +18,7 @@ class TaskModel extends Equatable{
     required this.type,
     required this.status,
     required this.createdAt,
+    this.revision = 0,
   });
 
   TaskModel copyWith({
@@ -26,6 +28,7 @@ class TaskModel extends Equatable{
     String? type,
     String? status,
     DateTime? createdAt,
+    int? revision,
   }) =>
       TaskModel(
         id: id ?? this.id,
@@ -34,6 +37,7 @@ class TaskModel extends Equatable{
         type: type ?? this.type,
         status: status ?? this.status,
         createdAt: createdAt ?? this.createdAt,
+        revision: revision ?? this.revision,
       );
 
   factory TaskModel.fromJson(String str) => TaskModel.fromMap(json.decode(str));
@@ -47,6 +51,9 @@ class TaskModel extends Equatable{
     type: json["type"],
     status: json["status"],
     createdAt: DateTime.parse(json["createdAt"]),
+    revision: json["revision"] is int
+        ? json["revision"] as int
+        : int.tryParse(json["revision"]?.toString() ?? '') ?? 0,
   );
 
   Map<String, dynamic> toMap() => {
@@ -56,8 +63,17 @@ class TaskModel extends Equatable{
     "type": type,
     "status": status,
     "createdAt": createdAt.toIso8601String(),
+    "revision": revision,
   };
 
   @override
-  List<Object?> get props => [id, title, description, type, status, createdAt];
+  List<Object?> get props => [
+        id,
+        title,
+        description,
+        type,
+        status,
+        createdAt,
+        revision,
+      ];
 }
