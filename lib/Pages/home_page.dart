@@ -11,7 +11,14 @@ import 'package:bexel_task/widgets/task_widget.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final AppDatabase db;
+  final TaskRepository repository;
+
+  const HomePage({
+    super.key,
+    required this.db,
+    required this.repository,
+  });
 
   @override
   State<HomePage> createState() {
@@ -20,8 +27,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final AppDatabase _db;
-  late final TaskRepository _repository;
   TaskFilters _filters = const TaskFilters();
   List<String> _types = [];
   bool _importing = false;
