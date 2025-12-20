@@ -159,16 +159,31 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    return TaskWidget(
-                      task: tasks[index],
-                      editItem: () => _openTaskForm(task: tasks[index]),
-                      deleteItem: () => _deleteTask(tasks[index]),
-                    );
-                  },
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Items: ${tasks.length}',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: tasks.length,
+                        itemBuilder: (context, index) {
+                          final task = tasks[index];
+                          return TaskWidget(
+                            task: task,
+                            editItem: () => _openTaskForm(task: task),
+                            deleteItem: () => _deleteTask(task),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
