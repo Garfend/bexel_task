@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 
 class TaskModel extends Equatable{
-  final int id;
+  final int? id;
   final String title;
   final String description;
   final String type;
@@ -11,7 +11,7 @@ class TaskModel extends Equatable{
   final DateTime createdAt;
 
   TaskModel({
-    required this.id,
+    this.id,
     required this.title,
     required this.description,
     required this.type,

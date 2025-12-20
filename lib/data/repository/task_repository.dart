@@ -17,8 +17,6 @@ abstract class TaskRepository {
   Future<void> addTask(TaskModel task);
   Future<void> updateTask(TaskModel task);
   Future<void> deleteTask(int id);
-  Future<int> nextId();
-  Future<void> warmIndexes();
 }
 
 class TaskRepositoryImp extends TaskRepository {
@@ -71,7 +69,7 @@ class TaskRepositoryImp extends TaskRepository {
       tasks
           .map(
             (t) => Task(
-              id: t.id,
+              id: t.id ?? 0,
               title: t.title,
               description: t.description,
               type: t.type,
@@ -86,20 +84,25 @@ class TaskRepositoryImp extends TaskRepository {
 
   @override
   Future<void> addTask(TaskModel task) async {
-    await taskDao.insertTask(TasksCompanion(
-      id: Value(task.id),
-      title: Value(task.title),
-      description: Value(task.description),
-      type: Value(task.type),
-      status: Value(task.status),
-      createdAt: Value(task.createdAt),
-    ));
+    await taskDao.insertTask(
+      TasksCompanion(
+        id: task.id == null ? const Value.absent() : Value(task.id!),
+        title: Value(task.title),
+        description: Value(task.description),
+        type: Value(task.type),
+        status: Value(task.status),
+        createdAt: Value(task.createdAt),
+      ),
+    );
   }
 
   @override
   Future<void> updateTask(TaskModel task) async {
+    if (task.id == null) {
+      throw ArgumentError('Task id is required to update a task');
+    }
     await taskDao.updateTaskRow(Task(
-      id: task.id,
+      id: task.id!,
       title: task.title,
       description: task.description,
       type: task.type,
@@ -111,16 +114,5 @@ class TaskRepositoryImp extends TaskRepository {
   @override
   Future<void> deleteTask(int id) async {
     await taskDao.deleteTaskById(id);
-  }
-
-  @override
-  Future<int> nextId() async {
-    final max = await taskDao.maxId();
-    return max + 1;
-  }
-
-  @override
-  Future<void> warmIndexes() {
-    return taskDao.ensureFtsIndexed();
   }
 }

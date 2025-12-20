@@ -5,7 +5,6 @@ import '../data/model/task_model.dart';
 Future<TaskModel?> showTaskFormDialog({
   required BuildContext context,
   TaskModel? initial,
-  required int nextId,
 }) {
   final titleController = TextEditingController(text: initial?.title ?? '');
   final descController =
@@ -83,7 +82,7 @@ Future<TaskModel?> showTaskFormDialog({
               ElevatedButton(
                 onPressed: () {
                   final newTask = TaskModel(
-                    id: initial?.id ?? nextId,
+                    id: initial?.id,
                     title: titleController.text,
                     description: descController.text,
                     type: typeController.text,
