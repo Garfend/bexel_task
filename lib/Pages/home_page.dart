@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bexel_task/data/datasource/task_datasource.dart';
 import 'package:bexel_task/data/local/app_database.dart';
 import 'package:bexel_task/data/model/task_filters.dart';
 import 'package:bexel_task/data/model/task_model.dart';
@@ -34,24 +33,19 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _db = AppDatabase();
-    _repository = TaskRepositoryImp(TaskDataSourceImp(), TaskDao(_db));
-    _initialize();
-  }
-
-  Future<void> _initialize() async {
-    await _repository.warmIndexes();
-    await _loadTypes();
+    _loadTypes();
   }
 
   Future<void> _loadTypes() async {
-    final types = await _repository.loadTaskTypes();
+    final types = await widget.repository.loadTaskTypes();
     if (!mounted) return;
     setState(() => _types = types);
   }
 
   Future<void> _deleteTask(TaskModel task) async {
-    await _repository.deleteTask(task.id);
+    final id = task.id;
+    if (id == null) return;
+    await widget.repository.deleteTask(id);
     await _loadTypes();
   }
 
@@ -59,27 +53,22 @@ class _HomePageState extends State<HomePage> {
     final result = await showTaskFormDialog(
       context: context,
       initial: task,
-      nextId: await _nextId(),
     );
 
     if (result != null) {
       if (task == null) {
-        await _repository.addTask(result);
+        await widget.repository.addTask(result);
       } else {
-        await _repository.updateTask(result);
+        await widget.repository.updateTask(result);
       }
       await _loadTypes();
     }
   }
 
-  Future<int> _nextId() {
-    return _repository.nextId();
-  }
-
   Future<void> _importData() async {
     setState(() => _importing = true);
     try {
-      await _repository.importFromAssets();
+      await widget.repository.importFromAssets();
       await _loadTypes();
     } finally {
       if (mounted) {
@@ -90,7 +79,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    unawaited(_db.close());
+    unawaited(widget.db.close());
     super.dispose();
   }
 
@@ -135,7 +124,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 4),
           Expanded(
             child: StreamBuilder<List<TaskModel>>(
-              stream: _repository.watchTasks(
+              stream: widget.repository.watchTasks(
                 keyword: _filters.query,
                 status: _filters.status,
                 type: _filters.type,
@@ -151,8 +140,7 @@ class _HomePageState extends State<HomePage> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 final tasks = snapshot.data ?? [];
-                final visibleTasks = tasks;
-                if (visibleTasks.isEmpty) {
+                if (tasks.isEmpty) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(16),
@@ -163,21 +151,18 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }
-                return Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _importData,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: visibleTasks.length,
-                      itemBuilder: (context, index) {
-                        return TaskWidget(
-                          task: visibleTasks[index],
-                          editItem: () =>
-                              _openTaskForm(task: visibleTasks[index]),
-                          deleteItem: () => _deleteTask(visibleTasks[index]),
-                        );
-                      },
-                    ),
+                return RefreshIndicator(
+                  onRefresh: _importData,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: tasks.length,
+                    itemBuilder: (context, index) {
+                      return TaskWidget(
+                        task: tasks[index],
+                        editItem: () => _openTaskForm(task: tasks[index]),
+                        deleteItem: () => _deleteTask(tasks[index]),
+                      );
+                    },
                   ),
                 );
               },
