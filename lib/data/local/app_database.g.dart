@@ -70,6 +70,18 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -78,6 +90,7 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     type,
     status,
     createdAt,
+    revision,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -137,6 +150,12 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
     return context;
   }
 
@@ -170,6 +189,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
     );
   }
 
@@ -186,6 +209,7 @@ class Task extends DataClass implements Insertable<Task> {
   final String type;
   final String status;
   final DateTime createdAt;
+  final int revision;
   const Task({
     required this.id,
     required this.title,
@@ -193,6 +217,7 @@ class Task extends DataClass implements Insertable<Task> {
     required this.type,
     required this.status,
     required this.createdAt,
+    required this.revision,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -203,6 +228,7 @@ class Task extends DataClass implements Insertable<Task> {
     map['type'] = Variable<String>(type);
     map['status'] = Variable<String>(status);
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['revision'] = Variable<int>(revision);
     return map;
   }
 
@@ -214,6 +240,7 @@ class Task extends DataClass implements Insertable<Task> {
       type: Value(type),
       status: Value(status),
       createdAt: Value(createdAt),
+      revision: Value(revision),
     );
   }
 
@@ -229,6 +256,7 @@ class Task extends DataClass implements Insertable<Task> {
       type: serializer.fromJson<String>(json['type']),
       status: serializer.fromJson<String>(json['status']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      revision: serializer.fromJson<int>(json['revision']),
     );
   }
   @override
@@ -241,6 +269,7 @@ class Task extends DataClass implements Insertable<Task> {
       'type': serializer.toJson<String>(type),
       'status': serializer.toJson<String>(status),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'revision': serializer.toJson<int>(revision),
     };
   }
 
@@ -251,6 +280,7 @@ class Task extends DataClass implements Insertable<Task> {
     String? type,
     String? status,
     DateTime? createdAt,
+    int? revision,
   }) => Task(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -258,6 +288,7 @@ class Task extends DataClass implements Insertable<Task> {
     type: type ?? this.type,
     status: status ?? this.status,
     createdAt: createdAt ?? this.createdAt,
+    revision: revision ?? this.revision,
   );
   Task copyWithCompanion(TasksCompanion data) {
     return Task(
@@ -269,6 +300,7 @@ class Task extends DataClass implements Insertable<Task> {
       type: data.type.present ? data.type.value : this.type,
       status: data.status.present ? data.status.value : this.status,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      revision: data.revision.present ? data.revision.value : this.revision,
     );
   }
 
@@ -280,14 +312,15 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('description: $description, ')
           ..write('type: $type, ')
           ..write('status: $status, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('revision: $revision')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, title, description, type, status, createdAt);
+      Object.hash(id, title, description, type, status, createdAt, revision);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -297,7 +330,8 @@ class Task extends DataClass implements Insertable<Task> {
           other.description == this.description &&
           other.type == this.type &&
           other.status == this.status &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.revision == this.revision);
 }
 
 class TasksCompanion extends UpdateCompanion<Task> {
@@ -307,6 +341,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<String> type;
   final Value<String> status;
   final Value<DateTime> createdAt;
+  final Value<int> revision;
   const TasksCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -314,6 +349,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.type = const Value.absent(),
     this.status = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.revision = const Value.absent(),
   });
   TasksCompanion.insert({
     this.id = const Value.absent(),
@@ -322,6 +358,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     required String type,
     required String status,
     required DateTime createdAt,
+    this.revision = const Value.absent(),
   }) : title = Value(title),
        description = Value(description),
        type = Value(type),
@@ -334,6 +371,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<String>? type,
     Expression<String>? status,
     Expression<DateTime>? createdAt,
+    Expression<int>? revision,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -342,6 +380,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (type != null) 'type': type,
       if (status != null) 'status': status,
       if (createdAt != null) 'created_at': createdAt,
+      if (revision != null) 'revision': revision,
     });
   }
 
@@ -352,6 +391,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Value<String>? type,
     Value<String>? status,
     Value<DateTime>? createdAt,
+    Value<int>? revision,
   }) {
     return TasksCompanion(
       id: id ?? this.id,
@@ -360,6 +400,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       type: type ?? this.type,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
+      revision: revision ?? this.revision,
     );
   }
 
@@ -384,6 +425,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
     return map;
   }
 
@@ -395,7 +439,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('description: $description, ')
           ..write('type: $type, ')
           ..write('status: $status, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('revision: $revision')
           ..write(')'))
         .toString();
   }
@@ -420,6 +465,7 @@ typedef $$TasksTableCreateCompanionBuilder =
       required String type,
       required String status,
       required DateTime createdAt,
+      Value<int> revision,
     });
 typedef $$TasksTableUpdateCompanionBuilder =
     TasksCompanion Function({
@@ -429,6 +475,7 @@ typedef $$TasksTableUpdateCompanionBuilder =
       Value<String> type,
       Value<String> status,
       Value<DateTime> createdAt,
+      Value<int> revision,
     });
 
 class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
@@ -466,6 +513,11 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -508,6 +560,11 @@ class $$TasksTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TasksTableAnnotationComposer
@@ -538,6 +595,9 @@ class $$TasksTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
 }
 
 class $$TasksTableTableManager
@@ -574,6 +634,7 @@ class $$TasksTableTableManager
                 Value<String> type = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
               }) => TasksCompanion(
                 id: id,
                 title: title,
@@ -581,6 +642,7 @@ class $$TasksTableTableManager
                 type: type,
                 status: status,
                 createdAt: createdAt,
+                revision: revision,
               ),
           createCompanionCallback:
               ({
@@ -590,6 +652,7 @@ class $$TasksTableTableManager
                 required String type,
                 required String status,
                 required DateTime createdAt,
+                Value<int> revision = const Value.absent(),
               }) => TasksCompanion.insert(
                 id: id,
                 title: title,
@@ -597,6 +660,7 @@ class $$TasksTableTableManager
                 type: type,
                 status: status,
                 createdAt: createdAt,
+                revision: revision,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
