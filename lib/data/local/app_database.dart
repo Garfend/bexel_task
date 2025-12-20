@@ -8,15 +8,12 @@ import 'package:path_provider/path_provider.dart';
 part 'app_database.g.dart';
 
 class Tasks extends Table {
-  IntColumn get id => integer()();
+  IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
   TextColumn get description => text()();
   TextColumn get type => text()();
   TextColumn get status => text()();
   DateTimeColumn get createdAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {id};
 }
 
 @DriftDatabase(tables: [Tasks])
@@ -82,14 +79,6 @@ END;
 @DriftAccessor(tables: [Tasks])
 class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
   TaskDao(AppDatabase db) : super(db);
-
-  Future<void> ensureFtsIndexed() async {
-    await customStatement(_ftsTable);
-    await customStatement(_ftsTriggerInsert);
-    await customStatement(_ftsTriggerDelete);
-    await customStatement(_ftsTriggerUpdate);
-    await customStatement("INSERT INTO tasks_fts(tasks_fts) VALUES('rebuild');");
-  }
 
   Stream<List<Task>> watchTasks({
     String? keyword,
@@ -188,13 +177,5 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     typeQuery.orderBy([OrderingTerm.asc(tasks.type)]);
     final results = await typeQuery.map((row) => row.read(tasks.type)!).get();
     return results;
-  }
-
-  Future<int> maxId() async {
-    final maxIdExpression = tasks.id.max();
-    final maxQuery = selectOnly(tasks)..addColumns([maxIdExpression]);
-    final result =
-        await maxQuery.map((row) => row.read(maxIdExpression) ?? 0).getSingle();
-    return result;
   }
 }
