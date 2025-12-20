@@ -163,9 +163,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }
-                return RefreshIndicator(
-                  onRefresh: _importData,
-                  child: ListView.builder(
+                return  ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {
@@ -175,7 +173,6 @@ class _HomePageState extends State<HomePage> {
                         deleteItem: () => _deleteTask(tasks[index]),
                       );
                     },
-                  ),
                 );
               },
             ),
