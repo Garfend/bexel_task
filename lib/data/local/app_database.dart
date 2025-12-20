@@ -68,15 +68,18 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     final variables = <Variable>[];
 
     if (keyword.trim().isNotEmpty) {
-      final normalized = keyword
-          .trim()
-          .split(RegExp(r'\s+'))
+      final terms = RegExp(r'[A-Za-z0-9_]+')
+          .allMatches(keyword)
+          .map((match) => match.group(0))
+          .whereType<String>()
           .where((term) => term.isNotEmpty)
-          .map((term) => '$term*')
-          .join(' ');
-      where.add(
-          'tasks.id IN (SELECT id FROM tasks_fts WHERE tasks_fts MATCH ?)');
-      variables.add(Variable<String>(normalized));
+          .toList();
+      if (terms.isNotEmpty) {
+        final normalized = terms.map((term) => '$term*').join(' ');
+        where.add(
+            'tasks.id IN (SELECT id FROM tasks_fts WHERE tasks_fts MATCH ?)');
+        variables.add(Variable<String>(normalized));
+      }
     }
     if (status != null && status.isNotEmpty) {
       where.add('tasks.status = ?');
