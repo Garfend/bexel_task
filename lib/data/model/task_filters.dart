@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class TaskFilters extends Equatable {
+  static const _unset = Object();
   final String query;
   final String? status;
   final String? type;
@@ -19,19 +20,19 @@ class TaskFilters extends Equatable {
 
   TaskFilters copyWith({
     String? query,
-    String? status,
-    String? type,
+    Object? status = _unset,
+    Object? type = _unset,
     bool? sortDescending,
-    DateTime? dateFrom,
-    DateTime? dateTo,
+    Object? dateFrom = _unset,
+    Object? dateTo = _unset,
   }) {
     return TaskFilters(
       query: query ?? this.query,
-      status: status ?? this.status,
-      type: type ?? this.type,
+      status: status == _unset ? this.status : status as String?,
+      type: type == _unset ? this.type : type as String?,
       sortDescending: sortDescending ?? this.sortDescending,
-      dateFrom: dateFrom ?? this.dateFrom,
-      dateTo: dateTo ?? this.dateTo,
+      dateFrom: dateFrom == _unset ? this.dateFrom : dateFrom as DateTime?,
+      dateTo: dateTo == _unset ? this.dateTo : dateTo as DateTime?,
     );
   }
 
